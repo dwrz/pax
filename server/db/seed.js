@@ -1,10 +1,11 @@
+const Promise = require('bluebird');
 const conn = require('./connexion/db-index');
 const conn2 = require('./connexion/connexion2');
 
 const sqlDrop = 'DROP DATABASE IF EXISTS pax;';
 const sqlCreate = 'CREATE DATABASE pax;';
 const sqlSchema =
-`CREATE TABLE users (
+      `CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(25) NOT NULL UNIQUE,
   sessionId VARCHAR(1024)
@@ -44,65 +45,80 @@ CREATE TABLE votes (
 
 console.log('@@@@@@@@@@@@@@@@@@@@@@ new try @@@@@@@@@@@@@@@@@@@@@@@@@');
 
-conn2.sqlConnection2.query(sqlDrop, (dropDBErr, dropDBRes) => {
-  console.log(dropDBErr ? dropDBErr.stack : dropDBRes.rows);
-  // check if pax exist
-  conn2.sqlConnection2.query("SELECT 1 FROM pg_database WHERE datname='pax'", (checkDBErr, checkDBRes) => {
-    if (checkDBErr) {
-      return console.log('error checking if pax exist', checkDBErr);
+conn2.sqlConnection2.query(sqlDrop, (err, res) => { // Drop the pax database, if it exists.
+  return new Promise((resolve, reject) => {
+    if (res) {
+      console.log(res.rows);
+      resolve(res);
+    } else if (err) {
+      console.log(err.stack);
+      reject(err);
     }
-    console.log('does pax exist = ', checkDBRes.rowCount);
-    // if it does not exist
-    if (checkDBRes.rowCount === 0) {
-      // create pax
-      conn2.sqlConnection2.query(sqlCreate, (createDBErr, createDBRes) => {
-        if (createDBErr) {
-          return console.log('error creating pax', createDBErr);
+  });
+}).then(() => { // Check if a pax database exists.
+    conn2.sqlConnection2.query("SELECT 1 FROM pg_database WHERE datname='pax'", (err, res) => {
+      if (err) {
+        console.log('Error checking if pax exists.', err);
+        return err;
+      } else {
+      console.log('Pax rowCount is: ', res.rowCount);
+      // If it does not exist, create pax.
+      if (res.rowCount === 0) {
+        return res;
+      }
+      }
+    })
+});
+
+  /*
+  conn2.sqlConnection2.query(sqlCreate, (createDBErr, createDBRes) => {
+    if (createDBErr) {
+      return console.log('error creating pax', createDBErr);
+    }
+    console.log('just created pax', createDBRes);
+    conn.sqlConnection.query("SELECT 1 FROM pg_database WHERE datname='pax'", (checkNewDBErr, checkNewDBRes) => {
+      if (checkNewDBErr) {
+        return console.log('error retrieving pax', checkNewDBErr);
+      }
+      console.log('does pax exist = ', checkNewDBRes.rowCount !== 0);
+      conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getTableErr, getTableRes) => {
+        if (getTableErr) {
+          return console.log('error retrieving pax tables', getTableErr);
         }
-        console.log('just created pax', createDBRes);
-        conn.sqlConnection.query("SELECT 1 FROM pg_database WHERE datname='pax'", (checkNewDBErr, checkNewDBRes) => {
-          if (checkNewDBErr) {
-            return console.log('error retrieving pax', checkNewDBErr);
-          }
-          console.log('does pax exist = ', checkNewDBRes.rowCount !== 0);
-          conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getTableErr, getTableRes) => {
-            if (getTableErr) {
-              return console.log('error retrieving pax tables', getTableErr);
+        console.log('tables in pax = ', getTableRes.rows);
+        getTableRes.rows.map((table) => {
+          console.log('current table = ', table.table_name);
+          conn.sqlConnection.query(`DROP TABLE IF EXISTS ${table.table_name} CASCADE`, (dropNewDBErr, dropNewDBResult) => {
+            if (dropNewDBErr) {
+              return console.log('error deleting table', dropNewDBErr);
+            } else {
+              console.log(dropNewDBReNewsult);
             }
-            console.log('tables in pax = ', getTableRes.rows);
-            getTableRes.rows.map((table) => {
-              console.log('current table = ', table.table_name);
-              conn.sqlConnection.query(`DROP TABLE IF EXISTS ${table.table_name} CASCADE`, (dropNewDBErr, dropNewDBResult) => {
-                if (dropNewDBErr) {
-                  return console.log('error deleting table', dropNewDBErr);
-                } else {
-                  console.log(dropNewDBReNewsult);
-                }
-                conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getTableErr2, getTableRes2) => {
-                  if (getTableErr2) {
-                    return console.log('error retrieving pax tables', getTableErr2);
-                  }
-                  console.log('just erased table : ', table.table_name);
-                  console.log('@@@@@@@@@@@@@@@@@@@@res after erasing  = ', getTableRes2.rows);
-                });
-              });
-            });
-            conn.sqlConnection.query(sqlSchema, (createSchemaErr, createSchemaRes) => {
-              if (createSchemaErr) {
-                return console.log('error creating pax schema', createSchemaErr);
+            conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getTableErr2, getTableRes2) => {
+              if (getTableErr2) {
+                return console.log('error retrieving pax tables', getTableErr2);
               }
-              console.log('just created pax schema', createSchemaRes);
-              // conn.sqlConnection.query();
-              conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getSchemaErr, getSchemaResult) => {
-                if (getSchemaErr) {
-                  return console.log('error retrieving pax schema', getSchemaErr);
-                }
-                console.log('retrieved schema after schema sql = ', getSchemaResult.rows.length);
-              });
+              console.log('just erased table : ', table.table_name);
+              console.log('@@@@@@@@@@@@@@@@@@@@res after erasing  = ', getTableRes2.rows);
             });
           });
         });
+        conn.sqlConnection.query(sqlSchema, (createSchemaErr, createSchemaRes) => {
+          if (createSchemaErr) {
+            return console.log('error creating pax schema', createSchemaErr);
+          }
+          console.log('just created pax schema', createSchemaRes);
+          // conn.sqlConnection.query();
+          conn.sqlConnection.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", (getSchemaErr, getSchemaResult) => {
+            if (getSchemaErr) {
+              return console.log('error retrieving pax schema', getSchemaErr);
+            }
+            console.log('retrieved schema after schema sql = ', getSchemaResult.rows.length);
+          });
+        });
       });
-    }
+    });
   });
-});
+}
+
+*/
