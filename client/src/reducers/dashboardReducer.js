@@ -1,5 +1,5 @@
 const initialState = {
-  articles: '', 
+  articles: '',
   visible: false,
   defaultInternalView: true,
   errorInternalView: false,
@@ -8,9 +8,8 @@ const initialState = {
   hoveredArticle: null,
 };
 
-
 export default function dashboard(state = initialState, action) {
-  switch(action.type) {
+  switch (action.type) {
     case 'FETCH_ARTICLES_FULFILLED':
       return {
         ...state,
