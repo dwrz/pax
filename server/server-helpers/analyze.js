@@ -28,7 +28,7 @@ const analyzeText = (text, title, summary, session, res, input, bool) => {
       } else {
         article.getID(input)
           .then((articleID) => {
-            if (articleID !== null) {
+            if (articleID !== null && articleID !== undefined) {
               analysis.id = articleID.dataValues.id;
             } else {
               analysis.id = undefined;
