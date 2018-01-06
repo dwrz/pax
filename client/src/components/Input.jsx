@@ -14,6 +14,10 @@ import InputText from './InputText.jsx';
     visible: store.user.inputView,
   };
 }) export default class Input extends React.Component {
+  static handleKeyUp(e) {
+    e.preventDefault();
+  }
+
   textToggleHandle() {
     this.props.dispatch(toggleUrlText(this.props.analyzeUrl));
   }
@@ -36,10 +40,6 @@ import InputText from './InputText.jsx';
     }
   }
 
-  handleKeyUp(e) {
-    e.preventDefault();
-  }
-
   render() {
     return this.props.visible && (
       <div className="container padTop center-text">
@@ -47,13 +47,13 @@ import InputText from './InputText.jsx';
           display={this.props.analyzeUrl}
           checkInput={this.checkInput.bind(this)}
           textToggleHandle={this.textToggleHandle.bind(this)}
-          handleKeyUp={this.handleKeyUp}
+          handleKeyUp={Input.handleKeyUp}
         />
         <InputText
           display={this.props.analyzeUrl}
           checkInput={this.checkInput.bind(this)}
           textToggleHandle={this.textToggleHandle.bind(this)}
-          handleKeyUp={this.handleKeyUp.bind(this)}
+          handleKeyUp={Input.handleKeyUp.bind(this)}
         />
       </div>
     );
