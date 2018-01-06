@@ -12,20 +12,20 @@ export function fetchArticles() {
   };
 }
 
-export function showDialog () {
+export function showDialog() {
   return (dispatch) => {
-    dispatch({type:'SHOW_DIALOG'});
-  }
+    dispatch({ type: 'SHOW_DIALOG' });
+  };
 }
 
-export function hideDialog () {
+export function hideDialog() {
   return (dispatch) => {
-    dispatch({type:'HIDE_DIALOG'});
-  }
+    dispatch({ type: 'HIDE_DIALOG' });
+  };
 }
 
-export function setHoveredArticle (article) {
+export function setHoveredArticle(article) {
   return (dispatch) => {
-    dispatch({ type : 'SET_HOVERED_ARTICLE', payload : article })
-  }
+    dispatch({ type: 'SET_HOVERED_ARTICLE', payload: article });
+  };
 }
