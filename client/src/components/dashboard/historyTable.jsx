@@ -9,11 +9,9 @@ import {
   TableRow,
   TableRowColumn,
 } from 'material-ui/Table';
-import {showDialog, hideDialog, setHoveredArticle} from '../../actions/dashboardActions';
-import {Card, CardHeader, CardTitle, CardText} from 'material-ui/Card';
 import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
+import { Card, CardHeader, CardTitle, CardText } from 'material-ui/Card';
+import { showDialog, hideDialog, setHoveredArticle } from '../../actions/dashboardActions';
 
 const styles = {
   propContainer: {
@@ -44,25 +42,14 @@ const styles = {
     deselectOnClickaway: true,
     showCheckboxes: false,
     height: '400px',
-    dialogVisible : store.dashboard.dialogVisible,
-    hoveredArticle : store.dashboard.hoveredArticle,
+    dialogVisible: store.dashboard.dialogVisible,
+    hoveredArticle: store.dashboard.hoveredArticle,
   };
 })
 
 export default class HistoryTable extends React.Component {
-
-  onRowHover(rowNum) {
-    this.props.dispatch( showDialog ());
-    this.props.dispatch(setHoveredArticle(this.getMicroScore (this.props.data[rowNum])))
-  }
-
-  onRowHoverExit () {
-    this.props.dispatch( hideDialog ());
-    this.props.dispatch(setHoveredArticle(null));
-  }
-
-  getMicroScore(article) {
-    var microScore = {};
+  static getMicroScore(article) {
+    const microScore = {};
     microScore.text = article.user_text;
     microScore.agreeableness = article.agreeableness;
     microScore.polarity = article.polarity;
@@ -84,47 +71,56 @@ export default class HistoryTable extends React.Component {
     microScore.emotional_range = article.emotional_range;
     microScore.upvote = article.upvote;
     return microScore;
-    //console.log('article text = ',article.user_text)
+  }
+
+  onRowHoverExit() {
+    this.props.dispatch(hideDialog());
+    this.props.dispatch(setHoveredArticle(null));
+  }
+
+  onRowHover(rowNum) {
+    this.props.dispatch(showDialog());
+    this.props.dispatch(setHoveredArticle(HistoryTable.getMicroScore(this.props.data[rowNum])));
   }
 
   render() {
     return (
       <div>
         <Drawer
-         open={this.props.dialogVisible}
-         width="20%"
-         z-depth="10"
+          open={this.props.dialogVisible}
+          width="20%"
+          z-depth="10"
         >
           {this.props.dialogVisible ?
             <Card>
               <CardHeader
-                title={"Trust Rating: " + this.props.hoveredArticle.result + "%"}
-                subtitle={"Polarity: " + this.props.hoveredArticle.polarity_score + "% " + this.props.hoveredArticle.polarity}
+                title={`Trust Rating: ${this.props.hoveredArticle.result}%`}
+                subtitle={`Polarity: ${this.props.hoveredArticle.polarity_score}% ${this.props.hoveredArticle.polarity}`}
                 avatar={
-                  this.props.hoveredArticle.upvote ? <i className="fa fa-3x fa-thumbs-up arrowUpSelected" /> : <i className="fa fa-3x fa-thumbs-down arrowDownSelected" />
-                }
+                      this.props.hoveredArticle.upvote ? <i className="fa fa-3x fa-thumbs-up arrowUpSelected" /> : <i className="fa fa-3x fa-thumbs-down arrowDownSelected" />
+                    }
               />
               <CardTitle
                 title="Analysis Summary"
               />
               <CardText>
-                Anger: {this.props.hoveredArticle.agreeableness} <br />
-                Disgust: {this.props.hoveredArticle.disgust} <br />
-                Fear: {this.props.hoveredArticle.fear} <br />
-                Joy: {this.props.hoveredArticle.joy} <br />
-                Sadness: {this.props.hoveredArticle.sadness} <br />
-                Analytical: {this.props.hoveredArticle.analytical} <br />
-                Confident: {this.props.hoveredArticle.confident} <br />
-                Tentative: {this.props.hoveredArticle.tentative} <br />
-                Openness: {this.props.hoveredArticle.openness} <br />
-                Conscientiousness: {this.props.hoveredArticle.conscientiousness} <br />
-                Extraversion: {this.props.hoveredArticle.extraversion} <br />
-                Agreeableness: {this.props.hoveredArticle.agreeableness} <br />
-                Emotional Range: {this.props.hoveredArticle.emotional_range} <br />
+                        Anger: {this.props.hoveredArticle.agreeableness} <br />
+                          Disgust: {this.props.hoveredArticle.disgust} <br />
+                          Fear: {this.props.hoveredArticle.fear} <br />
+                          Joy: {this.props.hoveredArticle.joy} <br />
+                          Sadness: {this.props.hoveredArticle.sadness} <br />
+                          Analytical: {this.props.hoveredArticle.analytical} <br />
+                          Confident: {this.props.hoveredArticle.confident} <br />
+                          Tentative: {this.props.hoveredArticle.tentative} <br />
+                          Openness: {this.props.hoveredArticle.openness} <br />
+                          Conscientiousness: {this.props.hoveredArticle.conscientiousness} <br />
+                          Extraversion: {this.props.hoveredArticle.extraversion} <br />
+                          Agreeableness: {this.props.hoveredArticle.agreeableness} <br />
+                          Emotional Range: {this.props.hoveredArticle.emotional_range} <br />
               </CardText>
             </Card>
-            : null
-          }
+              : null
+            }
         </Drawer>
 
         <Table
@@ -161,12 +157,16 @@ export default class HistoryTable extends React.Component {
             stripedRows={this.props.stripedRows}
           >
 
-            {this.props.data.map( (article, index) => (
-              <TableRow key={index}>
+            {this.props.data.map(article => (
+              <TableRow key={article.id}>
                 <TableRowColumn colSpan="1">
-                  { article.voted ? article.upvote ? <i className="fa fa-2x fa-thumbs-up arrowUpSelected" /> : <i className="fa fa-2x fa-thumbs-down arrowDownSelected" /> : null }
+                  {
+                    article.voted &&
+                    article.upvote ? <i className="fa fa-2x fa-thumbs-up arrowUpSelected" /> :
+                    <i className="fa fa-2x fa-thumbs-down arrowDownSelected" />
+                    }
                 </TableRowColumn>
-                <TableRowColumn colSpan="1">{article.result + ' %'} </TableRowColumn>
+                <TableRowColumn colSpan="1">{`${article.result} %`} </TableRowColumn>
                 <TableRowColumn colSpan="1">{article.is_link ? 'Link' : 'Text' }</TableRowColumn>
                 <TableRowColumn colSpan="4">
                   {
@@ -174,7 +174,7 @@ export default class HistoryTable extends React.Component {
                   }
                 </TableRowColumn>
               </TableRow>
-              ))}
+            ))}
 
           </TableBody>
           <TableFooter
