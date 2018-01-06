@@ -28,6 +28,10 @@ const styles = {
 
   };
 }) export default class Nav extends React.Component {
+  static handleKeyEntry(e) {
+    e.preventDefault();
+  }
+
   componentWillMount() {
     this.props.dispatch(getUser());
   }
@@ -52,10 +56,6 @@ const styles = {
     this.props.dispatch(setView('SET_DASHBOARD_VIEW'));
   }
 
-  handleKeyEntry(e) {
-    e.preventDefault();
-  }
-
   render() {
     return (
       <AppBar
@@ -65,70 +65,63 @@ const styles = {
             tabIndex="0"
             className="title"
             onClick={this.handleAnalyzeClick.bind(this)}
-            onKeyUp={this.handleKeyEntry.bind(this)}
-          >Pax Atlantica
+            onKeyUp={Nav.handleKeyEntry.bind(this)}
+          >
+                Pax Atlantica
           </span>
-              }
+            }
         showMenuIconButton={false}
         iconElementRight={
           <div className="nav">
-
             <FlatButton
               label="Analyze"
               onClick={this.handleAnalyzeClick.bind(this)}
-              backgroundColor={
-                this.props.inputView ?
-                styles.navBar.activeBgColor :
-                styles.navBar.unactiveBgColor
-              }
+              backgroundColor={this.props.inputView ?
+                                         styles.navBar.activeBgColor :
+                                         styles.navBar.unactiveBgColor
+                                        }
             />
             <FlatButton
               label="About"
               onClick={this.handleAboutClick.bind(this)}
-              backgroundColor={
-                this.props.aboutView ?
-                styles.navBar.activeBgColor :
-                styles.navBar.unactiveBgColor
-              }
+              backgroundColor={this.props.aboutView ?
+                                           styles.navBar.activeBgColor :
+                                           styles.navBar.unactiveBgColor
+                                          }
             />
-            {
-                !this.props.waiting && !this.props.noSearchSoFar ?
-                  <FlatButton
-                    label="Results"
-                    onClick={this.handleResultsClick.bind(this)}
-                    backgroundColor={
-                      this.props.resultView ?
-                      styles.navBar.activeBgColor :
-                      styles.navBar.unactiveBgColor
-                    }
-                  /> :
-                  null
-            }
-            {this.props.login ?
+            { !this.props.waiting && !this.props.noSearchSoFar &&
+            <FlatButton
+              label="Results"
+              onClick={this.handleResultsClick.bind(this)}
+              backgroundColor={this.props.resultView ?
+                                               styles.navBar.activeBgColor :
+                                               styles.navBar.unactiveBgColor
+                                              }
+            />
+                            }
+            { this.props.login ?
               <div>
-
                 <FlatButton
                   label="Dashboard"
                   onClick={this.handleDashboardClick.bind(this)}
-                  backgroundColor={
-                    this.props.dashboardView ?
-                    styles.navBar.activeBgColor :
-                    styles.navBar.unactiveBgColor
-                  }
+                  backgroundColor={this.props.dashboardView ?
+                                                       styles.navBar.activeBgColor :
+                                                       styles.navBar.unactiveBgColor
+                                                      }
                 />
                 <FlatButton
                   label="Log Out"
                   onClick={this.handleLogoutClick.bind(this)}
                 />
               </div>
-            :
+                                :
               <FlatButton
                 href="/auth/google"
                 label="Log In"
               />
-            }
+                                  }
           </div>
-        }
+                }
       />
     );
   }
